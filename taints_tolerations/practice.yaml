@@ -1,0 +1,42 @@
+# 이미 추가된 git 내역 삭제
+git rm -r --cached .idea/
+
+# 노드 상세 정보 확인(노드 이름, IP, 버전)
+kubectl get node -o wide
+
+# 노드에 taints 확인
+kubectl get node node01 -o json | jq '.spec.taints'
+
+# 노드에 taints 추가
+kubectl taint node node01 spray=mortein:NoSchedule
+
+# 효과는 3개
+# NoSchedule: 해당 노드에 스케줄링되지 않음
+# PreferNoSchedule: 해당 노드에 스케줄링되지 않지만, 다른 노드에 스케줄링될 수 있음
+# NoExecute: 해당 노드에 스케줄링되지 않고, 해당 노드의 파드는 즉시 종료됨
+
+# pod 템플릿 생성
+kubectl run mosquito --image=nginx --dry-run=client \
+-o yaml > pod-definition.yaml
+
+# pod-definition.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod
+spec:
+  containers:
+    - name: nginx-container
+      image: nginx:latest
+  tolerations:
+    - key: "spray"
+      operator: "Equal"
+      value: "mortein"
+      effect: "NoSchedule"
+
+# describe node에서 grep으로 taints 확인 가능
+kubectl describe node node01 | grep Taint
+
+# taints 제거, 뒤에 하이픈(-)을 붙여야 함
+kubectl taint nodes controlplane node-role.kubernetes.io/control-plane:NoSchedule-
+
