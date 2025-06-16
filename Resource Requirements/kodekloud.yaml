@@ -1,0 +1,39 @@
+# vim 세팅
+:set nu
+:set ts=2
+:set sw=2
+:set ai
+:set paste
+
+# pod sample 생성
+kubectl run elephant --image=polinux/stress --dry-run=client -o yaml > elephant.yaml
+
+# 아니면 현재 실행되고 있는 pod를 yaml로 가져옴
+kubectl get pod elephant -o yaml > elephant.yaml
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: elephant
+  namespace: default
+spec:
+  containers:
+  - image: polinux/stress
+    args:
+    - --vm
+    - "1"
+    - --vm-bytes
+    - 15M
+    - --vm-hang
+    - "1"
+    command:
+    - stress
+    name: mem-stress
+    resources:
+      limits:
+        memory: 20Mi
+      requests:
+        memory: 5Mi
+
+---

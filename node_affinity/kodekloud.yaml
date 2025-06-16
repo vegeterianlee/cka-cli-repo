@@ -7,6 +7,7 @@ kubectl label node node01 color=blue
 # deployment template 파일 생성
 kubectl create deployment blue --image=nginx --replicas=3 --dry-run=client -o yaml > blue.yaml
 
+---
 # node selector 추가
 apiVersion: apps/v1
 kind: Deployment
@@ -28,6 +29,7 @@ spec:
       nodeSelector:
         app: blue
 
+---
 # operator
   IN, NotIn, Exists, DoesNotExist
 
@@ -42,6 +44,7 @@ kubectl diff -f blue.yaml
 # vim 한번에 들여쓰기
 shift + v + >
 
+---
 # affinity 적용
 affinity:
   nodeAffinity:
