@@ -15,3 +15,25 @@ kubectl get pods -n kube-system kube-apiserver-controlplane -o json | jq | grep 
       }
    ],
 ---
+static pod의 수 세기
+ls /etc/kubernetes/mainfests/ | wc -l
+
+---
+kube-apiserver 이미지 찾기
+kubectl get pod kube-apiserver-controlplane -n kube-system -o json | jq ".spec.containers[0].image"
+
+---
+static pod 생성
+kubectl run static-busybox --image=busybox --dry-run=client -o yaml --command -- sleep 1000 > static-busybox.yaml
+mv static-busybox.yaml /etc/kubernetes/manifests/static-busybox.yaml
+kubectl create -f /etc/kubernetes/manifests/static-busybox.yaml
+
+---
+### kubelete이 감시하는 디렉토리
+- 각 static pod가 위치한 node에 먼저 접근이 필요함
+- /etc/kubernetes/manifests
+        - Kubelet이 static pod를 감시하는 디렉토리
+        - default가 이렇고 /var/lib/kubelet/config.yaml에서 다르게 지정 가능함
+- /var/lib/kubelet/config.yaml
+        - Kubelet에게 그 감시 경로(=manifestPath)가 어디인지를 알려주는 설정 파일
+        - 여기서 manifests가 저장된 경로를 찾고 그 내부의 yaml을 지우면 static pod가 삭제됨
