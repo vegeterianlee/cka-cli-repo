@@ -1,0 +1,17 @@
+# static pod 찾기
+kubectl get pods -A
+# 그 이후에 노드 이름이 뒤에 붙은 경우들이 static pod임
+
+---
+# 다른 방법은 ownerReference를 확인해서 Node로 되어있는 지를 확인
+kubectl get pods -n kube-system kube-apiserver-controlplane -o json | jq | grep owner -A 7
+    "ownerReferences": [
+      {
+        "apiVersion": "v1",
+        "controller": true,
+        "kind": "Node",
+        "name": "controlplane",
+        "uid": "c4accb57-01f8-4192-8467-01fcf7529c68"
+      }
+   ],
+---
